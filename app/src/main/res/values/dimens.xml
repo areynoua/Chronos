@@ -1,0 +1,6 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="input_horizontal_margin">8dp</dimen>
+    <dimen name="simple_line_list_item_height">48dp</dimen>
+    <dimen name="two_lines_list_item_height">96dp</dimen>
+</resources>

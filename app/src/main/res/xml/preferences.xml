@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Time by day (minutes)">
+        <com.reynouard.alexis.chronos.preference.IntegerPreference
+            android:defaultValue="120"
+            android:inputType="number"
+            android:key="pref_free_time_monday"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Monday" />
+        <com.reynouard.alexis.chronos.preference.IntegerPreference
+            android:defaultValue="120"
+            android:inputType="number"
+            android:key="pref_free_time_tuesday"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Tuesday" />
+        <com.reynouard.alexis.chronos.preference.IntegerPreference
+            android:defaultValue="120"
+            android:inputType="number"
+            android:key="pref_free_time_wednesday"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Wednesday" />
+        <com.reynouard.alexis.chronos.preference.IntegerPreference
+            android:defaultValue="120"
+            android:inputType="number"
+            android:key="pref_free_time_thursday"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Thursday" />
+        <com.reynouard.alexis.chronos.preference.IntegerPreference
+            android:defaultValue="120"
+            android:inputType="number"
+            android:key="pref_free_time_friday"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Friday" />
+        <com.reynouard.alexis.chronos.preference.IntegerPreference
+            android:defaultValue="120"
+            android:inputType="number"
+            android:key="pref_free_time_saturday"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Saturday" />
+        <com.reynouard.alexis.chronos.preference.IntegerPreference
+            android:defaultValue="60"
+            android:inputType="number"
+            android:key="pref_free_time_sunday"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Sunday" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Vacancies by year">
+        <com.reynouard.alexis.chronos.preference.IntegerPreference
+            android:defaultValue="4"
+            android:inputType="number"
+            android:key="pref_holiday_complete_weeks"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Weeks of vacation by year"/>
+        <com.reynouard.alexis.chronos.preference.IntegerPreference
+            android:defaultValue="5"
+            android:inputType="number"
+            android:key="pref_holiday_weekends"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Additional weekends of vacation" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

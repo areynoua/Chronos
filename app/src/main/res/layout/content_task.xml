@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".TaskActivity"
+    tools:showIn="@layout/activity_task">
+
+    <EditText
+        android:id="@+id/view_task_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="4"
+        android:hint="@string/duration_hint"
+        android:inputType="number"
+        android:nextFocusForward="@id/view_task_repetition"
+        android:selectAllOnFocus="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/view_task_flexible_duration"
+        style="@style/CheckboxHorizontalMargin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:button="@drawable/approx_exact_selector"
+        android:checked="false"
+        android:contentDescription="@string/flexible_duration"
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_duration"
+        app:layout_constraintEnd_toStartOf="@id/view_task_duration" />
+
+    <EditText
+        android:id="@+id/view_task_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:ems="10"
+        android:hint="@string/task_name_hint"
+        android:inputType="text|textCapSentences"
+        android:nextFocusForward="@id/view_task_duration"
+        app:layout_constraintEnd_toStartOf="@id/view_task_flexible_duration"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <CheckBox
+        android:id="@+id/view_task_repetitive"
+        style="@style/CheckboxHorizontalMargin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:button="@drawable/many_once"
+        android:checked="true"
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_hyper_period"
+        app:layout_constraintEnd_toStartOf="@id/view_every_times_sentence_start"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
+
+    <TextView
+        android:id="@+id/view_every_times_sentence_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_hyper_period"
+        app:layout_constraintStart_toEndOf="@id/view_task_repetitive"
+        app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
+
+    <EditText
+        android:id="@+id/view_task_repetition"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="3"
+        android:hint="@string/times_hint"
+        android:inputType="number"
+        android:nextFocusForward="@id/view_task_hyper_period"
+        android:selectAllOnFocus="true"
+        android:text="1"
+        android:textAlignment="center"
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_hyper_period"
+        app:layout_constraintStart_toEndOf="@id/view_every_times_sentence_start"
+        app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
+
+    <TextView
+        android:id="@+id/view_every_times_sentence_middle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/every_times_sentence_middle"
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_hyper_period"
+        app:layout_constraintStart_toEndOf="@id/view_task_repetition"
+        app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
+
+    <EditText
+        android:id="@+id/view_task_hyper_period"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="3"
+        android:hint="@string/period_hint"
+        android:inputType="number"
+        android:nextFocusForward="@id/view_task_description"
+        android:selectAllOnFocus="true"
+        android:text="7"
+        android:textAlignment="center"
+        app:layout_constraintStart_toEndOf="@id/view_every_times_sentence_middle"
+        app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
+
+    <TextView
+        android:id="@+id/view_every_times_sentence_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/every_times_sentence_end"
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_hyper_period"
+        app:layout_constraintStart_toEndOf="@id/view_task_hyper_period"
+        app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
+
+    <CheckBox
+        android:id="@+id/view_task_important"
+        style="@style/CheckboxHorizontalMargin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:button="@drawable/important_normal_selector"
+        android:checked="false"
+        android:contentDescription="@string/important_task"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_task_hyper_period" />
+
+    <EditText
+        android:id="@+id/view_task_description"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:ems="10"
+        android:hint="@string/details_hint"
+        android:inputType="text|textCapSentences"
+        android:nextFocusForward="@id/view_task_important"
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_important"
+        app:layout_constraintEnd_toStartOf="@id/view_task_important"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/view_ok_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@android:string/ok"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_task_description" />
+
+    <Button
+        android:id="@+id/view_cancel_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@android:string/cancel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_task_description" />
+
+    <ImageButton
+        android:id="@+id/view_add_log_entry_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/add_log_entry"
+        android:src="@drawable/ic_add_fg_24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/view_work_list_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="@string/log"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_ok_button" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/view_work_list"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@id/view_add_log_entry_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_work_list_title"
+        tools:listitem="@layout/work_item" />
+
+</android.support.constraint.ConstraintLayout>

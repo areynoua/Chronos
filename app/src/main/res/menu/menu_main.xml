@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.reynouard.alexis.chronos.MainActivity">
+    <item
+        android:id="@+id/action_manage"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:orderInCategory="20"
+        android:title="@string/action_manage"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@android:drawable/ic_menu_preferences"
+        android:orderInCategory="40"
+        android:title="@string/action_settings"
+        app:showAsAction="ifRoom"/>
+    <item
+        android:id="@+id/action_backup"
+        android:icon="@drawable/ic_local_backup_fg_24dp"
+        android:orderInCategory="60"
+        android:title="@string/backup"
+        app:showAsAction="never" />
+</menu>

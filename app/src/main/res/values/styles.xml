@@ -1,0 +1,23 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:colorAccent">@color/colorAccent</item>
+        <item name="android:colorForeground">@color/colorForeground</item>
+        <item name="android:colorBackground">@color/colorBackground</item>
+    </style>
+
+    <style name="CheckboxHorizontalMargin" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:layout_marginEnd">@dimen/input_horizontal_margin</item>
+        <item name="android:layout_marginStart">@dimen/input_horizontal_margin</item>
+    </style>
+
+    <style name="SmallIconButtonStyle" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textSize">24dp</item>
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+</resources>

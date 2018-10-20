@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <Button
+        android:id="@+id/view_morning_button"
+        style="@style/SmallIconButtonStyle"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="@string/morning" />
+
+    <Button
+        android:id="@+id/view_noon_button"
+        style="@style/SmallIconButtonStyle"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="@string/noon" />
+
+    <Button
+        android:id="@+id/view_evening_button"
+        style="@style/SmallIconButtonStyle"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="@string/evening" />
+
+    <Button
+        android:id="@+id/view_now_button"
+        style="@style/SmallIconButtonStyle"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:text="@string/now" />
+
+</LinearLayout>
