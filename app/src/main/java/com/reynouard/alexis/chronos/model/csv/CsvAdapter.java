@@ -1,10 +1,17 @@
 package com.reynouard.alexis.chronos.model.csv;
 
+import android.util.Log;
+
 import com.reynouard.alexis.chronos.model.DateConverter;
 import com.reynouard.alexis.chronos.model.Task;
 import com.reynouard.alexis.chronos.model.Work;
+import com.reynouard.alexis.chronos.utils.StringUtils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -14,7 +21,7 @@ public class CsvAdapter {
 
     public static final String RECORD_BREAK = "\r\n";
 
-    private static final Pattern FIELD_SEPARATORS = Pattern.compile("\"?,\"?");
+    private static final Pattern FIELD_SEPARATORS = Pattern.compile(",");
 
     private CsvAdapter(){}
 
@@ -41,40 +48,94 @@ public class CsvAdapter {
                 .toString();
     }
 
-    public static Task toTask(String csv) {
-        String[] csvFields = getFields(csv);
-        int id = Integer.valueOf(csvFields[0]);
-        int repetition = Integer.valueOf(csvFields[3]);
-        int hyperPeriod = Integer.valueOf(csvFields[4]);
-        int duration = Integer.valueOf(csvFields[5]);
-        boolean durationFlexible = csvFields[6].equals("1");
-        boolean isImportant = csvFields[7].equals("1");
-        boolean isRepetitive = csvFields[8].equals("1");
-        return new Task(id, csvFields[1], csvFields[2], repetition, hyperPeriod, duration, durationFlexible, isImportant, isRepetitive);
+    public static Task toTask(BufferedReader reader) throws NumberFormatException, IndexOutOfBoundsException, IOException {
+        String record = getRecord(reader);
+        if (record.equals("")) {
+            return null;
+        }
+        return toTask(record);
     }
 
-    public static Work toWork(String csv) {
-        String[] csvFields = getFields(csv);
-        int id = Integer.valueOf(csvFields[0]);
-        int taskId = Integer.valueOf(csvFields[1]);
-        Date date = DateConverter.fromIsoFormat(csvFields[2]);
-        return new Work(id, taskId, date);
+    public static Work toWork(BufferedReader reader) throws NumberFormatException, IndexOutOfBoundsException, IOException {
+        String record = getRecord(reader);
+        if (record.equals("")) {
+            return null;
+        }
+        return toWork(record);
     }
 
-    private static String[] getFields(String line) {
+    public static Task toTask(String csv) throws NumberFormatException, IndexOutOfBoundsException, IOException {
+        try {
+            List<String> csvFields = getFields(csv);
+            int id = Integer.valueOf(csvFields.get(0));
+            int repetition = Integer.valueOf(csvFields.get(3));
+            int hyperPeriod = Integer.valueOf(csvFields.get(4));
+            int duration = Integer.valueOf(csvFields.get(5));
+            boolean durationFlexible = csvFields.get(6).equals("1");
+            boolean isImportant = csvFields.get(7).equals("1");
+            boolean isRepetitive = csvFields.get(8).equals("1");
+            return new Task(id, csvFields.get(1), csvFields.get(2), repetition, hyperPeriod, duration, durationFlexible, isImportant, isRepetitive);
+        }
+        catch (NumberFormatException | IndexOutOfBoundsException | IOException e) {
+            Log.e("CSV", "toTask: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    public static Work toWork(String csv) throws NumberFormatException, IndexOutOfBoundsException, IOException {
+        try {
+            List<String> csvFields = getFields(csv);
+            int id = Integer.valueOf(csvFields.get(0));
+            int taskId = Integer.valueOf(csvFields.get(1));
+            Date date = DateConverter.fromIsoFormat(csvFields.get(2));
+            return new Work(id, taskId, date);
+        }
+        catch (NumberFormatException | IndexOutOfBoundsException | IOException e) {
+            Log.e("CSV", "toTask: " + e.getMessage());
+            throw e;
+        }
+    }
+
+    private static List<String> getFields(String line) throws IOException {
+
+        // Split fields: remove ,
         String[] strings = FIELD_SEPARATORS.split(line);
-        if (strings[0].charAt(0) == '"') {
-            strings[0] = strings[0].substring(1);
+        // Merge strings from same field but separated due to a comma
+        List<String> fields = new ArrayList<>(strings.length);
+        String field = "";
+        for (int i = 0; i < strings.length; ++i) {
+            field = strings[i];
+            while (i < strings.length-1 && StringUtils.countOccurrencesOf("\"", field) % 2 != 0) {
+                field += "," + strings[++i];
+            }
+            if (field.length() > 0) {
+                if (field.charAt(0) == '"' || field.charAt(field.length() - 1) == '"') {
+                    if (field.charAt(0) == field.charAt(field.length() - 1)) {
+                        field = field.substring(1,field.length()-1);
+                    }
+                    else {
+                        throw new IOException("Ill-formed csv " + line);
+                    }
+                }
+            }
+            fields.add(field);
         }
-        int l = strings.length;
-        int ll = strings[l-1].length();
-        if (strings[l-1].charAt(ll) == '"') {
-            strings[l-1] = strings[l-1].substring(0, ll - 1);
+        if (strings.length == 0 || StringUtils.countOccurrencesOf("\"", field) % 2 != 0) {
+            throw new IOException("Ill-formed csv " + line);
         }
+        // Double " to simple "
         for (int i = 0; i < strings.length; ++i) {
             strings[i] = strings[i].replace("\"\"", "\"");
         }
-        return strings;
+        return fields;
+    }
+
+    private static String getRecord(BufferedReader reader) throws IOException {
+        StringBuilder recordBuilder = new StringBuilder(reader.readLine());
+        while (StringUtils.countOccurrencesOf("\"", recordBuilder.toString()) % 2 != 0) {
+            recordBuilder.append(reader.readLine());
+        }
+        return recordBuilder.toString();
     }
 }
 

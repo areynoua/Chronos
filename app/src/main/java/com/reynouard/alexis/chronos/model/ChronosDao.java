@@ -5,23 +5,34 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
+import android.arch.persistence.room.Transaction;
 import android.arch.persistence.room.Update;
 
 import java.util.List;
 
 import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 
+/**
+ * Do not use directly to edit delete, insert nor update.
+ * Use ChronosViewModel instead.
+ */
 @Dao
-public interface ChronosDao {
+public abstract class ChronosDao {
+
+    @Transaction
+    public void clearAll() {
+        clearAllWorks();
+        clearAllTasks();
+    }
 
     @Insert(onConflict = REPLACE)
-    long insertTask(Task task);
+    public abstract long insertTask(Task task);
 
     @Update
-    void updateTask(Task task);
+    public abstract void updateTask(Task task);
 
     @Delete
-    void deleteTask(Task task);
+    public abstract void deleteTask(Task task);
 
     @Query("SELECT" +
             "  T.mId as mId," +
@@ -42,7 +53,7 @@ public interface ChronosDao {
             " ORDER BY" +
             "  CASE WHEN mLastDoneDate IS NULL THEN 0 ELSE 1 END," +
             "  (julianday('now') - julianday(W.mLastDoneDate)) / (T.mHyperPeriod/T.mRepetition) DESC")
-    LiveData<StatedTask> getTask(long taskId);
+    public abstract LiveData<StatedTask> getTask(long taskId);
 
     @Query("SELECT" +
             "  T.mId as mId," +
@@ -62,19 +73,22 @@ public interface ChronosDao {
             " ORDER BY" +
             "  CASE WHEN mLastDoneDate IS NULL THEN 0 ELSE 1 END," +
             "  (julianday('now') - julianday(W.mLastDoneDate)) / (T.mHyperPeriod/T.mRepetition) DESC")
-    LiveData<List<StatedTask>> getTasks();
+    public abstract LiveData<List<StatedTask>> getTasks();
+
+    @Query("DELETE FROM Task")
+    public abstract void clearAllTasks();
 
     @Insert(onConflict = REPLACE)
-    void insertWork(Work work);
+    public abstract void insertWork(Work work);
 
     @Delete
-    void deleteWork(Work work);
+    public abstract void deleteWork(Work work);
 
     @Query("SELECT * FROM Work ORDER BY mDate DESC")
-    LiveData<List<Work>> getWorks();
+    public abstract LiveData<List<Work>> getWorks();
 
     @Query("SELECT * FROM Work WHERE mTaskId = :taskId ORDER BY mDate DESC")
-    LiveData<List<Work>> getWorksForTask(long taskId);
+    public abstract LiveData<List<Work>> getWorksForTask(long taskId);
 
     @Query("SELECT" +
             "  SUM(T.mDuration)" +
@@ -84,5 +98,8 @@ public interface ChronosDao {
             "     AND mDate < datetime('now', '+1 day', 'start of day')) as W" +
             "  INNER JOIN Task as T" +
             "  ON (W.mTaskId = T.mId)")
-    LiveData<Integer> getDurationDoneToday();
+    public abstract LiveData<Integer> getDurationDoneToday();
+
+    @Query("DELETE FROM Work")
+    public abstract void clearAllWorks();
 }

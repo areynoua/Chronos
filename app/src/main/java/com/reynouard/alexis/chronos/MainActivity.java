@@ -144,10 +144,36 @@ public class MainActivity extends AppCompatActivity implements
         if (id == R.id.action_backup) {
             // TODO: wait for answer before start service
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-            startService(new Intent(this, BackupService.class));
+            Intent intent = new Intent(this, BackupRestoreService.class);
+            intent.setAction(BackupRestoreService.ACTION_BACKUP);
+            startService(intent);
+        }
+        if (id == R.id.action_restore) {
+            // TODO: wait for answer before start service
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 2);
+
+            Intent pickContentIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            pickContentIntent.addCategory(Intent.CATEGORY_OPENABLE);
+            pickContentIntent.setType("text/*");
+            startActivityForResult(pickContentIntent, 3);
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case 3:
+                if (resultCode == RESULT_OK && data != null && data.getData() != null) {
+                    Intent intent = new Intent(this, BackupRestoreService.class);
+                    intent.setAction(BackupRestoreService.ACTION_RESTORE);
+                    intent.setData(data.getData());
+                    startService(intent);
+                }
+                break;
+        }
     }
 
     @Override

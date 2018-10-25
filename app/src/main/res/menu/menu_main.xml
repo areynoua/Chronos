@@ -20,4 +20,10 @@
         android:orderInCategory="60"
         android:title="@string/backup"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_restore"
+        android:icon="@drawable/ic_local_restore_fg_24dp"
+        android:orderInCategory="70"
+        android:title="@string/restore"
+        app:showAsAction="never" />
 </menu>

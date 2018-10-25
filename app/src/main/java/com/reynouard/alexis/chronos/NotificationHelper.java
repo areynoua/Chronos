@@ -4,6 +4,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
+import android.support.v4.app.NotificationCompat;
 
 public class NotificationHelper {
 
@@ -32,5 +33,15 @@ public class NotificationHelper {
 
             notificationManager.createNotificationChannel(channel);
         }
+    }
+
+    public static NotificationCompat.Builder createNotificationBuilder(Context context, String channelId) {
+        final NotificationCompat.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new NotificationCompat.Builder(context, channelId);
+        } else {
+            builder = new NotificationCompat.Builder(context);
+        }
+        return builder.setSmallIcon(R.mipmap.ic_launcher);
     }
 }

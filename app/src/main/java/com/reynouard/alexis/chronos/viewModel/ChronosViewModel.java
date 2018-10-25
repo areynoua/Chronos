@@ -5,9 +5,9 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.reynouard.alexis.chronos.BackupRestoreService;
 import com.reynouard.alexis.chronos.model.ChronosDao;
 import com.reynouard.alexis.chronos.model.ChronosRoom;
 import com.reynouard.alexis.chronos.model.StatedTask;
@@ -63,8 +63,8 @@ public class ChronosViewModel extends AndroidViewModel {
         return mWorksByTask.get(taskId);
     }
 
-    public void insertTask(Task task, @Nullable OnTaskModifiedListener listener) {
-        new InsertTaskAsyncTask(mChronosDao, listener).execute(task);
+    private static void ensureNoRestorationRunning() {
+        synchronized(BackupRestoreService.restorationLock){}
     }
 
     public void updateTask(Task task) {
@@ -88,6 +88,10 @@ public class ChronosViewModel extends AndroidViewModel {
         return mChronosDao.getTask(taskId);
     }
 
+    public void insertTask(Task task, @NonNull OnTaskModifiedListener listener) {
+        new InsertTaskAsyncTask(mChronosDao, listener).execute(task);
+    }
+
     public interface OnTaskModifiedListener {
         void onTaskInserted(Long taskId);
     }
@@ -96,13 +100,14 @@ public class ChronosViewModel extends AndroidViewModel {
         private final ChronosDao mChronosDao;
         private final OnTaskModifiedListener mListener;
 
-        InsertTaskAsyncTask(ChronosDao chronosDao, @Nullable OnTaskModifiedListener listener) {
+        InsertTaskAsyncTask(ChronosDao chronosDao, @NonNull OnTaskModifiedListener listener) {
             mChronosDao = chronosDao;
             mListener = listener;
         }
 
         @Override
         protected Long doInBackground(final Task... tasks) {
+            ensureNoRestorationRunning();
             return mChronosDao.insertTask(tasks[0]);
         }
 
@@ -122,6 +127,7 @@ public class ChronosViewModel extends AndroidViewModel {
 
         @Override
         protected Void doInBackground(final Task... tasks) {
+            ensureNoRestorationRunning();
             mChronosDao.updateTask(tasks[0]);
             return null;
         }
@@ -136,6 +142,7 @@ public class ChronosViewModel extends AndroidViewModel {
 
         @Override
         protected Void doInBackground(Work... works) {
+            ensureNoRestorationRunning();
             mChronosDao.insertWork(works[0]);
             return null;
         }
@@ -150,6 +157,7 @@ public class ChronosViewModel extends AndroidViewModel {
 
         @Override
         protected Void doInBackground(final Task... tasks) {
+            ensureNoRestorationRunning();
             mChronosDao.deleteTask(tasks[0]);
             return null;
         }
@@ -164,6 +172,7 @@ public class ChronosViewModel extends AndroidViewModel {
 
         @Override
         protected Void doInBackground(Work... works) {
+            ensureNoRestorationRunning();
             mChronosDao.deleteWork(works[0]);
             return null;
         }
