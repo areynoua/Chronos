@@ -84,6 +84,10 @@ public class ChronosViewModel extends AndroidViewModel {
         new DeleteWorkAsyncTask(mChronosDao).execute(work);
     }
 
+    public void deleteWorks(Long taskId) {
+        new DeleteWorksAsyncTask(mChronosDao).execute(taskId);
+    }
+
     public LiveData<StatedTask> getTask(long taskId) {
         return mChronosDao.getTask(taskId);
     }
@@ -174,6 +178,21 @@ public class ChronosViewModel extends AndroidViewModel {
         protected Void doInBackground(Work... works) {
             ensureNoRestorationRunning();
             mChronosDao.deleteWork(works[0]);
+            return null;
+        }
+    }
+
+    private static class DeleteWorksAsyncTask extends AsyncTask<Long, Void, Void> {
+        private final ChronosDao mChronosDao;
+
+        DeleteWorksAsyncTask(ChronosDao chronosDao) {
+            mChronosDao = chronosDao;
+        }
+
+        @Override
+        protected Void doInBackground(Long... taskIds) {
+            ensureNoRestorationRunning();
+            mChronosDao.deleteWorks(taskIds[0]);
             return null;
         }
     }

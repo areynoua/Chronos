@@ -13,11 +13,20 @@ import java.util.List;
 import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 
 /**
- * Do not use directly to edit delete, insert nor update.
+ * Do not use directly to edit: delete, insert nor update.
  * Use ChronosViewModel instead.
  */
 @Dao
 public abstract class ChronosDao {
+
+    private static final String SQL_SECONDS_SINCE_REFERENCE_DATE = " (strftime('%s','now') - strftime('%s',W.mReferenceDate))";
+    private static final String SQL_DAYS_SINCE_REFERENCE_DATE = " (" + SQL_SECONDS_SINCE_REFERENCE_DATE + "/ (24 * 60 * 60.0))";
+    private static final String SQL_PERIOD_IN_SECOND = " ((T.mHyperPeriod * 24 * 60 * 60.0) / (T.mRepetition))";
+    private static final String SQL_URGENCY = " CASE WHEN mRepetitive" +
+            " THEN (0.0 +" + SQL_SECONDS_SINCE_REFERENCE_DATE + ") /" + SQL_PERIOD_IN_SECOND +
+            " ELSE CASE WHEN" + SQL_SECONDS_SINCE_REFERENCE_DATE + " >= 0" +
+                " THEN " + SQL_DAYS_SINCE_REFERENCE_DATE + " + 2" +
+                " ELSE (1.0 / -(" + SQL_DAYS_SINCE_REFERENCE_DATE + " - 0.5)) END END";
 
     @Transaction
     public void clearAll() {
@@ -44,15 +53,15 @@ public abstract class ChronosDao {
             "  T.mDurationFlexible as mDurationFlexible," +
             "  T.mImportant as mImportant," +
             "  T.mRepetitive as mRepetitive," +
-            "  W.mLastDoneDate as mLastDoneDate" +
+            "  W.mReferenceDate as mReferenceDate" +
             " FROM" +
             "  Task as T" +
-            "  LEFT OUTER JOIN (SELECT mTaskId, max(mDate) as mLastDoneDate FROM Work GROUP BY mTaskId) as W" +
+            "  LEFT OUTER JOIN (SELECT mTaskId, max(mDate) as mReferenceDate FROM Work GROUP BY mTaskId) as W" +
             "  ON (T.mId = W.mTaskId)" +
             " WHERE mId = :taskId" +
             " ORDER BY" +
-            "  CASE WHEN mLastDoneDate IS NULL THEN 0 ELSE 1 END," +
-            "  (julianday('now') - julianday(W.mLastDoneDate)) / (T.mHyperPeriod/T.mRepetition) DESC")
+            "  CASE WHEN mReferenceDate IS NULL THEN 0 ELSE 1 END," +
+            "  " + SQL_URGENCY + " DESC")
     public abstract LiveData<StatedTask> getTask(long taskId);
 
     @Query("SELECT" +
@@ -65,14 +74,14 @@ public abstract class ChronosDao {
             "  T.mDurationFlexible as mDurationFlexible," +
             "  T.mImportant as mImportant," +
             "  T.mRepetitive as mRepetitive," +
-            "  W.mLastDoneDate as mLastDoneDate" +
+            "  W.mReferenceDate as mReferenceDate" +
             " FROM" +
             "  Task as T" +
-            "  LEFT OUTER JOIN (SELECT mTaskId, max(mDate) as mLastDoneDate FROM Work GROUP BY mTaskId) as W" +
+            "  LEFT OUTER JOIN (SELECT mTaskId, max(mDate) as mReferenceDate FROM Work GROUP BY mTaskId) as W" +
             "  ON (T.mId = W.mTaskId)" +
             " ORDER BY" +
-            "  CASE WHEN mLastDoneDate IS NULL THEN 0 ELSE 1 END," +
-            "  (julianday('now') - julianday(W.mLastDoneDate)) / (T.mHyperPeriod/T.mRepetition) DESC")
+            "  CASE WHEN mReferenceDate IS NULL THEN 0 ELSE 1 END," +
+            "  " + SQL_URGENCY + " DESC")
     public abstract LiveData<List<StatedTask>> getTasks();
 
     @Query("DELETE FROM Task")
@@ -83,6 +92,9 @@ public abstract class ChronosDao {
 
     @Delete
     public abstract void deleteWork(Work work);
+
+    @Query("DELETE FROM Work WHERE mTaskId = :taskId")
+    public abstract void deleteWorks(Long taskId);
 
     @Query("SELECT * FROM Work ORDER BY mDate DESC")
     public abstract LiveData<List<Work>> getWorks();

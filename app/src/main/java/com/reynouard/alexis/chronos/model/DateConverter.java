@@ -2,6 +2,7 @@ package com.reynouard.alexis.chronos.model;
 
 import android.annotation.SuppressLint;
 import android.arch.persistence.room.TypeConverter;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 import java.text.ParseException;
@@ -10,7 +11,7 @@ import java.util.Date;
 
 public class DateConverter {
     @SuppressLint("SimpleDateFormat")
-    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    private static final SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
     @TypeConverter
     public static synchronized Date fromIsoFormat(String iso) {
@@ -18,7 +19,7 @@ public class DateConverter {
             return null;
         }
         try {
-            return format.parse(iso);
+            return isoFormat.parse(iso);
         } catch (ParseException e) {
             Log.e(Date.class.getSimpleName(), "Unable to convert String to date " + iso);
             return null;
@@ -30,7 +31,7 @@ public class DateConverter {
     public static synchronized String fromDate(Date date) {
         return date ==  null
                 ? null
-                : format.format(date);
+                : isoFormat.format(date);
     }
 
     /*

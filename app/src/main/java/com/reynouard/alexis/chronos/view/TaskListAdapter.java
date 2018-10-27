@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -153,6 +154,7 @@ public class TaskListAdapter extends RecyclerView.Adapter<TaskListAdapter.TaskVi
 
             mTaskNameView.setText(task.getName());
             setDueDateViewText(task.getNaturalDaysCountToNextOccurrence(), task.getUrgency());
+            Log.d("tasks", "task: " + task.getName() + "; urgency: " + task.getUrgency());
             mTodoIconView.setImageDrawable(mTodoIconView.getContext().getDrawable(mSelector.isSelected(task)
                     ? R.drawable.ic_radio_button_checked_fg_24dp
                     : R.drawable.ic_radio_button_unchecked_fg_24dp));

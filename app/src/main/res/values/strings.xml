@@ -114,4 +114,5 @@
     <string name="hyphen_sep"> - </string>
     <string name="all_is_done">All is done :)</string>
     <string name="restore">Restore</string>
+    <string name="due_date">Due date:</string>
 </resources>

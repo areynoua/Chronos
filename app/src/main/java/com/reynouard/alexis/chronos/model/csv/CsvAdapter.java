@@ -110,7 +110,7 @@ public class CsvAdapter {
             }
             if (field.length() > 0) {
                 if (field.charAt(0) == '"' || field.charAt(field.length() - 1) == '"') {
-                    if (field.charAt(0) == field.charAt(field.length() - 1)) {
+                    if (field.length() > 1 && field.charAt(0) == field.charAt(field.length() - 1)) {
                         field = field.substring(1,field.length()-1);
                     }
                     else {
@@ -124,8 +124,8 @@ public class CsvAdapter {
             throw new IOException("Ill-formed csv " + line);
         }
         // Double " to simple "
-        for (int i = 0; i < strings.length; ++i) {
-            strings[i] = strings[i].replace("\"\"", "\"");
+        for (int i = 0; i < fields.size(); ++i) {
+            fields.set(i, fields.get(i).replace("\"\"", "\""));
         }
         return fields;
     }
@@ -133,7 +133,7 @@ public class CsvAdapter {
     private static String getRecord(BufferedReader reader) throws IOException {
         StringBuilder recordBuilder = new StringBuilder(reader.readLine());
         while (StringUtils.countOccurrencesOf("\"", recordBuilder.toString()) % 2 != 0) {
-            recordBuilder.append(reader.readLine());
+            recordBuilder.append("\n").append(reader.readLine());
         }
         return recordBuilder.toString();
     }

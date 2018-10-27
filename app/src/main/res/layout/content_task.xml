@@ -52,8 +52,7 @@
         android:layout_marginEnd="8dp"
         android:button="@drawable/many_once"
         android:checked="true"
-        app:layout_constraintBaseline_toBaselineOf="@id/view_task_hyper_period"
-        app:layout_constraintEnd_toStartOf="@id/view_every_times_sentence_start"
+        android:layout_marginTop="6dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
 
@@ -61,9 +60,8 @@
         android:id="@+id/view_every_times_sentence_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBaseline_toBaselineOf="@id/view_task_hyper_period"
-        app:layout_constraintStart_toEndOf="@id/view_task_repetitive"
-        app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_repetitive"
+        app:layout_constraintStart_toEndOf="@id/view_task_repetitive" />
 
     <EditText
         android:id="@+id/view_task_repetition"
@@ -74,20 +72,18 @@
         android:inputType="number"
         android:nextFocusForward="@id/view_task_hyper_period"
         android:selectAllOnFocus="true"
-        android:text="1"
+        android:text="@string/times_hint"
         android:textAlignment="center"
-        app:layout_constraintBaseline_toBaselineOf="@id/view_task_hyper_period"
-        app:layout_constraintStart_toEndOf="@id/view_every_times_sentence_start"
-        app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_repetitive"
+        app:layout_constraintStart_toEndOf="@id/view_every_times_sentence_start" />
 
     <TextView
         android:id="@+id/view_every_times_sentence_middle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/every_times_sentence_middle"
-        app:layout_constraintBaseline_toBaselineOf="@id/view_task_hyper_period"
-        app:layout_constraintStart_toEndOf="@id/view_task_repetition"
-        app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_repetitive"
+        app:layout_constraintStart_toEndOf="@id/view_task_repetition" />
 
     <EditText
         android:id="@+id/view_task_hyper_period"
@@ -98,19 +94,43 @@
         android:inputType="number"
         android:nextFocusForward="@id/view_task_description"
         android:selectAllOnFocus="true"
-        android:text="7"
+        android:text="@string/period_hint"
         android:textAlignment="center"
         app:layout_constraintStart_toEndOf="@id/view_every_times_sentence_middle"
-        app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_repetitive" />
 
     <TextView
         android:id="@+id/view_every_times_sentence_end"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/every_times_sentence_end"
-        app:layout_constraintBaseline_toBaselineOf="@id/view_task_hyper_period"
-        app:layout_constraintStart_toEndOf="@id/view_task_hyper_period"
-        app:layout_constraintTop_toBottomOf="@id/view_task_duration" />
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_repetitive"
+        app:layout_constraintStart_toEndOf="@id/view_task_hyper_period" />
+
+    <TextView
+        android:id="@+id/view_due_date_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/due_date"
+        android:visibility="gone"
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_repetitive"
+        app:layout_constraintStart_toEndOf="@id/view_task_repetitive" />
+
+    <EditText
+        android:id="@+id/view_due_date"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:inputType="date"
+        android:nextFocusForward="@id/view_task_hyper_period"
+        android:selectAllOnFocus="true"
+        android:textAlignment="center"
+        android:visibility="gone"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"
+        android:focusable="false"
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_repetitive"
+        app:layout_constraintStart_toEndOf="@id/view_due_date_text"
+        app:layout_constraintEnd_toStartOf="@id/view_task_important"/>
 
     <CheckBox
         android:id="@+id/view_task_important"
@@ -122,7 +142,7 @@
         android:checked="false"
         android:contentDescription="@string/important_task"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/view_task_hyper_period" />
+        app:layout_constraintBaseline_toBaselineOf="@id/view_task_repetitive"/>
 
     <EditText
         android:id="@+id/view_task_description"
@@ -131,9 +151,10 @@
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:hint="@string/details_hint"
-        android:inputType="text|textCapSentences"
+        android:inputType="text|textCapSentences|textMultiLine"
+        android:lines="3"
         android:nextFocusForward="@id/view_task_important"
-        app:layout_constraintBaseline_toBaselineOf="@id/view_task_important"
+        app:layout_constraintTop_toBottomOf="@id/view_task_hyper_period"
         app:layout_constraintEnd_toStartOf="@id/view_task_important"
         app:layout_constraintStart_toStartOf="parent" />
 

@@ -16,8 +16,8 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.reynouard.alexis.chronos.model.StatedTask;
 import com.reynouard.alexis.chronos.model.Task;
@@ -26,7 +26,10 @@ import com.reynouard.alexis.chronos.view.OnDeleteWorkRequestedListener;
 import com.reynouard.alexis.chronos.view.WorkListAdapter;
 import com.reynouard.alexis.chronos.viewModel.ChronosViewModel;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static android.content.DialogInterface.BUTTON_POSITIVE;
@@ -45,28 +48,33 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
     private EditText mRepetitionView;
     private EditText mHyperPeriodView;
     private EditText mDurationView;
+    private EditText mDueDateView;
     private CheckBox mFlexibleDurationView;
     private CheckBox mImportantTaskView;
     private CheckBox mRepetitiveTaskView;
 
     private ChronosViewModel mChronosViewModel;
 
-    private Long mTaskId = 0L;
+    private long mTaskId = 0L;
 
     private DatePicker mDatePicker = null;
     private TimePicker mTimePicker = null;
     private Calendar mDatePicked = null;
+
+    private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
+        // toolbar
         setContentView(R.layout.activity_task);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // references to views
         mOkButton = findViewById(R.id.view_ok_button);
         mCancelButton = findViewById(R.id.view_cancel_button);
         mAddLogEntryButton = findViewById(R.id.view_add_log_entry_button);
@@ -75,12 +83,15 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         mRepetitionView = findViewById(R.id.view_task_repetition);
         mHyperPeriodView = findViewById(R.id.view_task_hyper_period);
         mDurationView = findViewById(R.id.view_task_duration);
+        mDueDateView = findViewById(R.id.view_due_date);
         mFlexibleDurationView = findViewById(R.id.view_task_flexible_duration);
         mImportantTaskView = findViewById(R.id.view_task_important);
         mRepetitiveTaskView = findViewById(R.id.view_task_repetitive);
 
+        // view model
         mChronosViewModel = ViewModelProviders.of(this).get(ChronosViewModel.class);
 
+        // load data into view
         Bundle extras = getIntent().getExtras();
         if (extras != null && extras.getLong(EXTRA_ID, 0L) != 0) {
             mTaskId = extras.getLong(EXTRA_ID);
@@ -97,14 +108,10 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
                     mFlexibleDurationView.setChecked(task.isDurationFlexible());
                     mImportantTaskView.setChecked(task.isImportant());
                     mRepetitiveTaskView.setChecked(task.isRepetitive());
-
-                    if (!task.isRepetitive()) {
-                        if (task.getRepetition() != 1) throw new AssertionError(); // TODO
-                        Integer dueDateDifference = task.getNaturalDaysCountToNextOccurrence();
-                        if (dueDateDifference != null) {
-                            mHyperPeriodView.setText(String.valueOf(dueDateDifference <= 0 ? 0 : dueDateDifference));
-                        }
-                    }
+                    final Date now = new Date();
+                    final Date ref = task.getReferenceDate();
+                    final Date date = ref != null ? ref : now;
+                    mDueDateView.setText(dateFormat.format(date));
 
                     viewRepetitive(task.isRepetitive());
                 }
@@ -134,29 +141,23 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         mOkButton.setOnClickListener(this);
         mCancelButton.setOnClickListener(this);
         mAddLogEntryButton.setOnClickListener(this);
+        mDueDateView.setOnClickListener(this);
     }
 
     private void viewRepetitive(boolean repetitive) {
-        if (repetitive) {
-            findViewById(R.id.view_every_times_sentence_start).setVisibility(VISIBLE);
-            ((TextView) findViewById(R.id.view_every_times_sentence_middle)).setText(R.string.every_times_sentence_middle);
-            ((TextView) findViewById(R.id.view_every_times_sentence_end)).setText(R.string.every_times_sentence_end);
-            mRepetitionView.setVisibility(VISIBLE);
-            mFlexibleDurationView.setVisibility(VISIBLE);
+        final int forRepetitive = repetitive ? VISIBLE : GONE;
+        final int forNonRepetitive = repetitive ? GONE : VISIBLE;
 
-            viewLog(mTaskId != 0);
-        }
-        else {
-            findViewById(R.id.view_every_times_sentence_start).setVisibility(GONE);
-            ((TextView) findViewById(R.id.view_every_times_sentence_middle)).setText(R.string.to_do_within_d_days_start);
-            ((TextView) findViewById(R.id.view_every_times_sentence_end)).setText(R.string.to_do_wihtin_d_days_end);
-            mRepetitionView.setVisibility(GONE);
-            mRepetitionView.setText("1");
-            mFlexibleDurationView.setVisibility(GONE);
-            mFlexibleDurationView.setChecked(false);
+        findViewById(R.id.view_every_times_sentence_start).setVisibility(forRepetitive);
+        mRepetitionView.setVisibility(forRepetitive);
+        findViewById(R.id.view_every_times_sentence_middle).setVisibility(forRepetitive);
+        mHyperPeriodView.setVisibility(forRepetitive);
+        findViewById(R.id.view_every_times_sentence_end).setVisibility(forRepetitive);
 
-            viewLog(false);
-        }
+        findViewById(R.id.view_due_date_text).setVisibility(forNonRepetitive);
+        mDueDateView.setVisibility(forNonRepetitive);
+
+        viewLog(repetitive && mTaskId != 0);
     }
 
     private void viewLog(boolean visible) {
@@ -197,6 +198,9 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         if (view == mRepetitiveTaskView) {
             viewRepetitive(isRepetitive());
         }
+        if (view == mDueDateView && !isRepetitive()) {
+            insertWork();
+        }
     }
 
     private boolean saveAndFinishIfValidates() {
@@ -223,15 +227,26 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
         onTaskModified(taskId);
     }
 
-    private void onTaskModified(Long taskId) {
-        // If no repeat, dummy work to have an urgency
+    private void onTaskModified(long taskId) {
+        // If no repeat, create a work as a due date
         if (!isRepetitive()) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.HOUR_OF_DAY, 0);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            mChronosViewModel.insertWork(new Work(0, taskId, calendar.getTime()));
+            final Date workDate;
+            try {
+                workDate = dateFormat.parse(mDueDateView.getText().toString());
+                if (taskId != 0) {
+                    mChronosViewModel.deleteWorks(taskId);
+                }
+                mChronosViewModel.insertWork(new Work(0, taskId, workDate));
+            } catch (ParseException e) {
+                Log.e("tasks", "onTaskModified: Bad date time format");
+                Toast.makeText(this, "Error: Bad date/time", Toast.LENGTH_LONG).show();
+            }
+//            Calendar calendar = Calendar.getInstance();
+//            calendar.set(Calendar.HOUR_OF_DAY, 0);
+//            calendar.set(Calendar.MINUTE, 0);
+//            calendar.set(Calendar.SECOND, 0);
+//            calendar.set(Calendar.MILLISECOND, 0);
+//            mChronosViewModel.insertWork(new Work(0, taskId, calendar.getTime()));
         }
         setResult(RESULT_OK);
         finish();
@@ -276,7 +291,12 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             if (button == BUTTON_POSITIVE) {
                 mDatePicked.set(Calendar.HOUR_OF_DAY, mTimePicker.getCurrentHour());
                 mDatePicked.set(Calendar.MINUTE, mTimePicker.getCurrentMinute());
-                mChronosViewModel.insertWork(new Work(0, mTaskId, mDatePicked.getTime()));
+                if (isRepetitive()) {
+                    mChronosViewModel.insertWork(new Work(0, mTaskId, mDatePicked.getTime()));
+                }
+                else {
+                    mDueDateView.setText(dateFormat.format(mDatePicked.getTime()));
+                }
             }
             mDatePicked = null;
             mTimePicker = null;
@@ -295,7 +315,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             ok = false;
         }
         try {
-            if (getRepetition() < 1) {
+            if (isRepetitive() && getRepetition() < 1) {
                 mRepetitionView.setError("How many times?");
                 ok = false;
             }
@@ -305,7 +325,7 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             ok = false;
         }
         try {
-            if (getHyperPeriod() < 1) {
+            if (isRepetitive() && getHyperPeriod() < 1) {
                 mHyperPeriodView.setError("Every how many days?");
                 ok = false;
             }
@@ -314,10 +334,18 @@ public class TaskActivity extends AppCompatActivity implements View.OnClickListe
             mHyperPeriodView.setError("Must be a number");
             ok = false;
         }
-        if (ok && getRepetition() > getHyperPeriod()) {
+        if (ok && isRepetitive() && getRepetition() > getHyperPeriod()) {
             mRepetitionView.setError("Max frequency is once a day");
             mRepetitionView.setText(mHyperPeriodView.getText());
             ok = false;
+        }
+        if (!isRepetitive()) {
+            try {
+                dateFormat.parse(mDueDateView.getText().toString());
+            } catch (ParseException e) {
+                mDueDateView.setError("Due date format");
+                ok = false;
+            }
         }
         return ok;
     }
