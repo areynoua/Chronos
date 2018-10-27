@@ -137,6 +137,7 @@ public class BackupRestoreService extends Service implements OnPartialBackupDone
         synchronized (BackupRestoreService.class) {
             if (mCommandCount != 0) {
                 Log.w(TAG, "onStartCommand ignored, already running");
+                Toast.makeText(this, "Abort. -- Is there already a backup/restoration running?", Toast.LENGTH_LONG).show();
                 stopSelf(startId);
                 return SERVICE_TYPE;
             } else {
@@ -188,7 +189,7 @@ public class BackupRestoreService extends Service implements OnPartialBackupDone
 
         final String filename = String.format("chronos_backup_%s.csv", DateConverter.fromDate(new Date()));
         File taskFile = new File(mDirectory, filename);
-        Writer writer = null;
+        Writer writer;
         try {
             writer = new FileWriter(taskFile);
             backupTasks(writer);
@@ -267,6 +268,17 @@ public class BackupRestoreService extends Service implements OnPartialBackupDone
             return;
         }
 
+        final NotificationCompat.Builder notificationBuilder = NotificationHelper
+                .createNotificationBuilder(this, PROGRESS_NOTIFICATION_CHANNEL_ID)
+                .setContentTitle("Restore")
+                .setContentText("Chronos database restoration running...")
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setProgress(0, 0, true)
+                .setOngoing(true);
+
+        final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(mCommandCount, notificationBuilder.build());
+
         restorationLock.lock();
         try {
             InputStream is = getContentResolver().openInputStream(source);
@@ -279,12 +291,14 @@ public class BackupRestoreService extends Service implements OnPartialBackupDone
         } catch (IOException e) {
             e.printStackTrace();
             restorationLock.unlock();
+            stop();
         }
     }
 
     @Override
     public void onRestorationDone(Boolean ok) {
         restorationLock.unlock();
+        stop();
         if (ok) {
             Toast.makeText(this, "Restored!", Toast.LENGTH_LONG).show();
         }
@@ -295,7 +309,7 @@ public class BackupRestoreService extends Service implements OnPartialBackupDone
 
     private void stop() {
         Log.d(TAG, "done, stopping");
-        synchronized (this) {
+        synchronized (BackupRestoreService.class) {
             // TODO: ensure that liveData observers were removed
             NotificationManagerCompat.from(this).cancel(mCommandCount);
             mCommandCount = 0;
